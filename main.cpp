@@ -76,9 +76,10 @@ int main(int argc, char *argv[])
         }
     }
     ofstream archivoH;
+    ofstream archivoCPP;
     archivoH.open(nombreDeClase + ".h");
+    archivoCPP.open(nombreDeClase + ".cpp");
     string encabezado;
-    char aux;
     for (int i = 0; i < nombreDeClase.length(); i++)
     {
         encabezado += toupper(nombreDeClase[i]);
@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
     archivoH << "using namespace std;" << endl;
     archivoH << "class " << nombreDeClase << "{" << endl;
     archivoH << "private: \n";
+    archivoCPP << "#include \"" << nombreDeClase << ".h\"" << endl;
     for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
     {
         if (i != 0)
@@ -146,6 +148,9 @@ int main(int argc, char *argv[])
         if (i % 2 == 0)
         {
             archivoH << "   void set_" << separacionTipoDeAtributo.at(i + 1) << "(" << separacionTipoDeAtributo.at(i) << ");\n";
+            archivoCPP << "   void " << nombreDeClase << "::set_" << separacionTipoDeAtributo.at(i + 1) << "(" << separacionTipoDeAtributo.at(i) << " _" << separacionTipoDeAtributo.at(i + 1) << "){\n";
+            archivoCPP << "       this->" << separacionTipoDeAtributo.at(i + 1) << "="
+                       << "_" << separacionTipoDeAtributo.at(i + 1) << ";\n}\n";
         }
     }
     for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
@@ -153,6 +158,8 @@ int main(int argc, char *argv[])
         if (i % 2 == 0)
         {
             archivoH << "   " << separacionTipoDeAtributo.at(i) << " get_" << separacionTipoDeAtributo.at(i + 1) << "();\n";
+            archivoCPP << "   " << separacionTipoDeAtributo.at(i) << " " << nombreDeClase << "::get_" << separacionTipoDeAtributo.at(i + 1) << "(){\n";
+            archivoCPP << "       return this->" << separacionTipoDeAtributo.at(i + 1) << ";\n}" << endl;
         }
     }
     archivoH << "};\n#endif";

@@ -14,6 +14,8 @@ int main(int argc, char *argv[])
     vector<string> clases;
     vector<string> atributos;
     vector<string> _claseIndividual;
+    vector<string> _atributoIndividual;
+    vector<string> separacionTipoDeAtributo;
     while (!read.eof())
     {
         string clase;
@@ -27,28 +29,117 @@ int main(int argc, char *argv[])
     }
     for (int i = 0; i < clases.size(); i++)
     {
-        string claseAUsar = clases.at(i);
-        string atributos_por_linea = "";
-        stringstream tokensAtributos(claseAUsar);
-        while (getline(tokensAtributos, atributos_por_linea, ' '))
+        string claseAusar = clases.at(i);
+        string lista_de_atributos;
+        stringstream _atributos(claseAusar);
+        while (getline(_atributos, lista_de_atributos, ' '))
         {
-            atributos.push_back(atributos_por_linea);
-        }
-        for (int j = 0; j < atributos.size(); j++)
-        {
-            string atributoAUsar = atributos.at(j);
-            string atributos_individuales = "";
-            stringstream separarAtributoEnEspecifico(atributoAUsar);
-            while (getline(separarAtributoEnEspecifico, atributos_individuales, ':'))
-            {
-                _claseIndividual.push_back(atributos_individuales);
-            }
-        }
-        for (int k = 0; k < _claseIndividual.size(); k++)
-        {
-            cout << _claseIndividual.at(k) << "--";
+            lista_de_atributos = lista_de_atributos.substr(1);
+            _claseIndividual.push_back(lista_de_atributos);
         }
     }
+    for (int i = 0; i < clases.size(); i++)
+    {
+        string claseAUsar = clases.at(i);
+        stringstream streamsClases(claseAUsar);
+        string lineasDeclase;
+        while (getline(streamsClases, lineasDeclase, ' '))
+        {
+            atributos.push_back(lineasDeclase);
+        }
+    }
+    for (size_t i = 0; i < atributos.size(); i++)
+    {
+        int contador = 0;
+        string atributosAusar = atributos.at(i);
+        stringstream streamAtributoIndividual(atributosAusar);
+        string _atributoPorLinea;
+        while (getline(streamAtributoIndividual, _atributoPorLinea, ':'))
+        {
+            if (contador % 2 == 1)
+            {
+                _atributoIndividual.push_back(_atributoPorLinea);
+            }
+            contador++;
+        }
+    }
+    string nombreDeClase = _atributoIndividual.at(0);
+    _atributoIndividual.erase(_atributoIndividual.begin());
+    for (int i = 0; i < _atributoIndividual.size(); i++)
+    {
+        string separadorDeAtributoYtipo = _atributoIndividual.at(i);
+        stringstream streamDeSeparador(separadorDeAtributoYtipo);
+        string auxiliar;
+        while (getline(streamDeSeparador, auxiliar, '|'))
+        {
+            separacionTipoDeAtributo.push_back(auxiliar);
+        }
+    }
+    for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
+    {
+        cout << separacionTipoDeAtributo.at(i) << endl;
+    }
 
+    ofstream archivoH;
+    archivoH.open(nombreDeClase + ".h");
+    string encabezado;
+    char aux;
+    for (int i = 0; i < nombreDeClase.length(); i++)
+    {
+        encabezado += toupper(nombreDeClase[i]);
+    }
+    archivoH << "#ifndef " << encabezado << "_H" << endl;
+    archivoH << "#define " << encabezado << "_H" << endl;
+    archivoH << "#include <iostream>" << endl;
+    archivoH << "using namespace std;" << endl;
+    archivoH << "class " << nombreDeClase << "{" << endl;
+    archivoH << "private: \n";
+    for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
+    {
+        if (i != 0)
+        {
+            if (i % 2 == 0)
+            {
+                archivoH << ";\n";
+            }
+        }
+        archivoH << separacionTipoDeAtributo.at(i) << " ";
+        if (i + 1 == separacionTipoDeAtributo.size())
+        {
+            archivoH << ";\n";
+        }
+    }
+    archivoH << "public: \n";
+    archivoH << nombreDeClase << "(){};\n";
+    archivoH << nombreDeClase << '(';
+    for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
+    {
+        if (i != 0)
+        {
+            if (i + 1 == separacionTipoDeAtributo.size())
+            {
+                archivoH << "_" << separacionTipoDeAtributo.at(i) << "){";
+            }
+            else if (i % 2 != 0)
+            {
+                archivoH << "_" << separacionTipoDeAtributo.at(i) << ",";
+            }
+        }
+    }
+    for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
+    {
+        if (i != 0)
+        {
+            if (i % 2 != 0)
+            {
+                archivoH << "   this->_" << separacionTipoDeAtributo.at(i) << '=' << separacionTipoDeAtributo.at(i) << ";\n";
+            }
+        }
+        if (i + 1 == separacionTipoDeAtributo.size())
+        {
+            archivoH << ";\n";
+        }
+    }
+    archivoH << "}\n#endif";
     read.close();
 }

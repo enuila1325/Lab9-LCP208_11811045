@@ -75,11 +75,6 @@ int main(int argc, char *argv[])
             separacionTipoDeAtributo.push_back(auxiliar);
         }
     }
-    for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
-    {
-        cout << separacionTipoDeAtributo.at(i) << endl;
-    }
-
     ofstream archivoH;
     archivoH.open(nombreDeClase + ".h");
     string encabezado;
@@ -110,36 +105,56 @@ int main(int argc, char *argv[])
         }
     }
     archivoH << "public: \n";
-    archivoH << nombreDeClase << "(){};\n";
-    archivoH << nombreDeClase << '(';
+    archivoH << "   " << nombreDeClase << "(){};\n";
+    archivoH << "   " << nombreDeClase << '(';
     for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
     {
         if (i != 0)
         {
             if (i + 1 == separacionTipoDeAtributo.size())
             {
-                archivoH << "_" << separacionTipoDeAtributo.at(i) << "){";
+                archivoH << "_" << separacionTipoDeAtributo.at(i) << ")\n{";
             }
             else if (i % 2 != 0)
             {
                 archivoH << "_" << separacionTipoDeAtributo.at(i) << ",";
             }
+            else if (i % 2 == 0)
+            {
+                archivoH << separacionTipoDeAtributo.at(i) << " ";
+            }
+        }
+        else
+        {
+            archivoH << separacionTipoDeAtributo.at(i) << " ";
         }
     }
+
     for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
     {
         if (i != 0)
         {
             if (i % 2 != 0)
             {
-                archivoH << "   this->_" << separacionTipoDeAtributo.at(i) << '=' << separacionTipoDeAtributo.at(i) << ";\n";
+                archivoH << "       this->" << separacionTipoDeAtributo.at(i) << "=_" << separacionTipoDeAtributo.at(i) << ";\n";
             }
         }
-        if (i + 1 == separacionTipoDeAtributo.size())
+    }
+    archivoH << "}\n";
+    for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
+    {
+        if (i % 2 == 0)
         {
-            archivoH << ";\n";
+            archivoH << "   void set_" << separacionTipoDeAtributo.at(i + 1) << "(" << separacionTipoDeAtributo.at(i) << ");\n";
         }
     }
-    archivoH << "}\n#endif";
+    for (int i = 0; i < separacionTipoDeAtributo.size(); i++)
+    {
+        if (i % 2 == 0)
+        {
+            archivoH << "   " << separacionTipoDeAtributo.at(i) << " get_" << separacionTipoDeAtributo.at(i + 1) << "();\n";
+        }
+    }
+    archivoH << "};\n#endif";
     read.close();
 }
